@@ -1,9 +1,27 @@
 let express = require('express');
+var fs = require('fs');
 let app = express();
-let server = require('http').createServer(app);
-let io = require('socket.io').listen(server);
-let port = process.env.PORT || 8000;
-server.listen(port);
+
+
+var https = require('https');
+var privateKey = fs.readFileSync('./app/yourkey.pem', 'utf8');
+var certificate = fs.readFileSync('./app/yourcert.pem', 'utf8');
+var credentials = {key: privateKey, cert: certificate};
+
+
+var httpsServer = https.createServer(credentials, app);
+
+var SSLPORT = 8000;
+
+httpsServer.listen(SSLPORT, function() {
+    console.log('HTTPS Server is running on: https://localhost:%s', SSLPORT);
+});
+
+
+// let server = require('http').createServer(app);
+let io = require('socket.io').listen(httpsServer);
+// let port = process.env.PORT || 8000;
+// server.listen(port);
 app.use(express.static(__dirname + '/'));
 
 app.get('/', function (req, res) {
