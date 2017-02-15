@@ -2,12 +2,10 @@ let express = require('express');
 var fs = require('fs');
 let app = express();
 
-
 var https = require('https');
 var privateKey = fs.readFileSync('./app/yourkey.pem', 'utf8');
 var certificate = fs.readFileSync('./app/yourcert.pem', 'utf8');
 var credentials = {key: privateKey, cert: certificate};
-
 
 var httpsServer = https.createServer(credentials, app);
 
