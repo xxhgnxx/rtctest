@@ -30,10 +30,18 @@ socket.on('connectionOk', function () {
 });
 console.log("gothe1n");
 var iceServer = {
-    "iceServers": [{
-            // "url": "stun:stun.l.google.com:19302"
-            "url": "stun:hk.airir.com"
-        }]
+    "iceServers": [
+        // {
+        //     // "url": "stun:stun.l.google.com:19302"
+        //     "url": "stun:hk.airir.com"
+        //     // "url": "stun:stunserver.org"
+        // },
+        {
+            "url": "turn:hk.airir.com",
+            "username": "123",
+            "credential": "123"
+        }
+    ]
 };
 function gotStream(stream) {
     localVideo.srcObject = stream;
@@ -64,6 +72,7 @@ function peerconnection() {
     pc = new RTCPeerConnection(iceServer);
     pc.onicecandidate = function (event) {
         if (event.candidate) {
+            console.log(event.candidate.candidate);
             if (event.candidate.candidate.indexOf('210.12.125.20') >= 1) {
                 console.log("bingooooooooooooooooooooooo!");
             }
@@ -136,7 +145,7 @@ socket.on('desc', function (desc) {
 });
 socket.on('candidate', function (candidate) {
     pc.addIceCandidate(candidate).then(function () {
-        console.log('收到candidate');
+        console.log('收到candidate', candidate);
     }, function (err) {
         console.log(err);
         console.log(candidate);

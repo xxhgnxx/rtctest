@@ -42,11 +42,20 @@ socket.on('connectionOk', function () {
 console.log("gothe1n");
 
 let iceServer = {
-    "iceServers": [{
-        // "url": "stun:stun.l.google.com:19302"
-        "url": "stun:hk.airir.com"
-        // "url": "stun:stunserver.org"
-    }]
+    "iceServers": [
+        // {
+        //     // "url": "stun:stun.l.google.com:19302"
+        //     "url": "stun:hk.airir.com"
+        //     // "url": "stun:stunserver.org"
+        // },
+        {
+
+            "url": "turn:hk.airir.com",
+            "username": "123",
+            "credential": "123"
+        }
+
+    ]
 };
 
 
@@ -79,6 +88,7 @@ function peerconnection() {
     pc = new RTCPeerConnection(iceServer);
     pc.onicecandidate = function (event) {
         if (event.candidate) {
+            console.log(event.candidate.candidate);            
             if (event.candidate.candidate.indexOf('210.12.125.20') >= 1) {
                 console.log("bingooooooooooooooooooooooo!");
             };
@@ -173,7 +183,7 @@ socket.on('desc', desc => {
 socket.on('candidate', candidate => {
     pc.addIceCandidate(candidate).then(
         function () {
-            console.log('收到candidate');
+            console.log('收到candidate',candidate);
         },
         function (err) {
             console.log(err);
