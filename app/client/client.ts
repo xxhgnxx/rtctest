@@ -11,13 +11,21 @@ let isanswer = false;
 let btn1 = <HTMLInputElement>document.getElementById('btn1');
 let btn2 = <HTMLInputElement>document.getElementById('btn2');
 let btn3 = <HTMLInputElement>document.getElementById('btn3');
+let btn4 = <HTMLInputElement>document.getElementById('btn4');
 let needtocallback = true;
+
+let tmpdesc;
 
 btn1.addEventListener('click', peerconnection);
 btn2.addEventListener('click', peerconnection);
+btn3.addEventListener('click', setlocal);
+btn4.addEventListener('click', setRemote);
 
 btn2.disabled = true;
 btn1.disabled = false;
+btn3.disabled = true;
+btn4.disabled = true;
+
 
 function con() {
 
@@ -32,12 +40,17 @@ socket.on('connectionOk', function () {
 
 });
 console.log("gothe1n");
-var iceServer = [
-    {
+
+let iceServer = {
+    "iceServers": [{
         // "url": "stun:stun.l.google.com:19302"
-        "url": "turn:hk.airir.com"
-    }
-];
+        "url": "stun:hk.airir.com"
+        // "url": "stun:stunserver.org"
+    }]
+};
+
+
+
 function gotStream(stream) {
     (<any>localVideo).srcObject = stream;
     localStream = stream;
@@ -50,8 +63,8 @@ function gotStream(stream) {
     }
 }
 function gotRemoteStream(e) {
-    console.log('绑定远端数据流');
-    console.log(e.stream);
+    // console.log('绑定远端数据流');
+    // console.log(e.stream);
     (<any>remoteVideo).srcObject = e.stream;
 }
 function iamcall(key) {
@@ -66,7 +79,13 @@ function peerconnection() {
     pc = new RTCPeerConnection(iceServer);
     pc.onicecandidate = function (event) {
         if (event.candidate) {
+            if (event.candidate.candidate.indexOf('210.12.125.20') >= 1) {
+                console.log("bingooooooooooooooooooooooo!");
+            };
             socket.emit('candidate', event.candidate)
+        } else {
+            console.log("!!!!!!!!!!!!!!!!!!!!!!");
+
         }
     }
     pc.onaddstream = gotRemoteStream;
@@ -80,7 +99,7 @@ function peerconnection() {
         audio: true,
         video: true
     })
-        .then(gotStream)
+        .then(gotStream);
 }
 socket.on("call", () => {
     console.log('收到call,等待同意');
@@ -97,62 +116,64 @@ socket.on("answer", () => {
         }
     );
     function gotDescription(desc) {
-        pc.setLocalDescription(desc).then(
-            () => {
-                console.log("desc local OK");
-                socket.emit('desc', desc);
-            },
-            (err) => {
-                console.log(err);
-            }
-        );
+        btn3.disabled = false;
+        tmpdesc = desc;
     }
 });
-socket.on('desc', desc => {
-    console.log('收到desc', isanswer, desc);
-    pc.setRemoteDescription(desc).then(
-        () => {
-            console.log("desc_remoteOK");
-        },
-        (err) => {
-            console.log(err);
-        }
-    );
-    if (isanswer) {
-        pc.createAnswer().then(
-            gotDescription,
-            (err) => {
-                console.log(err);
-            }
-        );
-        function gotDescription(desc) {
-            pc.setLocalDescription(desc).then(
-                () => {
-                    console.log("desc local OK");
-                    socket.emit('desc', desc);
-                },
-                (err) => {
-                    console.log(err);
-                }
-            );
-        }
-    }
-})
 
-socket.on('desc_a', desc => {
-    console.log('收到desc', desc);
-    pc.setRemoteDescription(desc).then(
+
+function setlocal() {
+    btn3.disabled = true;
+    console.log('setlocal', tmpdesc);
+    pc.setLocalDescription(tmpdesc).then(
         () => {
-            console.log("desc_remoteOK");
+            socket.emit('desc', tmpdesc);
         },
         (err) => {
             console.log(err);
         }
     );
-})
+}
+
+function setRemote() {
+    btn4.disabled = true;
+    console.log('setRemote', tmpdesc);
+    pc.setRemoteDescription(tmpdesc).then(
+        () => {
+            if (isanswer) {
+                pc.createAnswer().then(
+                    gotDescription,
+                    (err) => {
+                        console.log(err);
+                    }
+                );
+                function gotDescription(desc) {
+                    btn3.disabled = false;
+                    tmpdesc = desc;
+                }
+            }
+        },
+        (err) => {
+            console.log(err);
+        }
+    );
+}
+
+
+
+socket.on('desc', desc => {
+    tmpdesc = desc;
+    btn4.disabled = false;
+
+    setRemote();
+
+});
+
+
 socket.on('candidate', candidate => {
     pc.addIceCandidate(candidate).then(
         function () {
+            console.log('收到candidate');
         },
         function (err) {
             console.log(err);

@@ -10,11 +10,17 @@ var isanswer = false;
 var btn1 = document.getElementById('btn1');
 var btn2 = document.getElementById('btn2');
 var btn3 = document.getElementById('btn3');
+var btn4 = document.getElementById('btn4');
 var needtocallback = true;
+var tmpdesc;
 btn1.addEventListener('click', peerconnection);
 btn2.addEventListener('click', peerconnection);
+btn3.addEventListener('click', setlocal);
+btn4.addEventListener('click', setRemote);
 btn2.disabled = true;
 btn1.disabled = false;
+btn3.disabled = true;
+btn4.disabled = true;
 function con() {
     btn2.disabled = true;
     btn1.disabled = false;
@@ -23,12 +29,12 @@ socket.on('connectionOk', function () {
     console.log('connectionOk');
 });
 console.log("gothe1n");
-var iceServer = [
-    {
-        // "url": "stun:stun.l.google.com:19302"
-        "url": "turn:hk.airir.com"
-    }
-];
+var iceServer = {
+    "iceServers": [{
+            // "url": "stun:stun.l.google.com:19302"
+            "url": "stun:hk.airir.com"
+        }]
+};
 function gotStream(stream) {
     localVideo.srcObject = stream;
     localStream = stream;
@@ -42,8 +48,8 @@ function gotStream(stream) {
     }
 }
 function gotRemoteStream(e) {
-    console.log('绑定远端数据流');
-    console.log(e.stream);
+    // console.log('绑定远端数据流');
+    // console.log(e.stream);
     remoteVideo.srcObject = e.stream;
 }
 function iamcall(key) {
@@ -58,7 +64,14 @@ function peerconnection() {
     pc = new RTCPeerConnection(iceServer);
     pc.onicecandidate = function (event) {
         if (event.candidate) {
+            if (event.candidate.candidate.indexOf('210.12.125.20') >= 1) {
+                console.log("bingooooooooooooooooooooooo!");
+            }
+            ;
             socket.emit('candidate', event.candidate);
+        }
+        else {
+            console.log("!!!!!!!!!!!!!!!!!!!!!!");
         }
     };
     pc.onaddstream = gotRemoteStream;
@@ -86,45 +99,44 @@ socket.on("answer", function () {
         console.log(err);
     });
     function gotDescription(desc) {
-        pc.setLocalDescription(desc).then(function () {
-            console.log("desc local OK");
-            socket.emit('desc', desc);
-        }, function (err) {
-            console.log(err);
-        });
+        btn3.disabled = false;
+        tmpdesc = desc;
     }
 });
-socket.on('desc', function (desc) {
-    console.log('收到desc', isanswer, desc);
-    pc.setRemoteDescription(desc).then(function () {
-        console.log("desc_remoteOK");
+function setlocal() {
+    btn3.disabled = true;
+    console.log('setlocal', tmpdesc);
+    pc.setLocalDescription(tmpdesc).then(function () {
+        socket.emit('desc', tmpdesc);
     }, function (err) {
         console.log(err);
     });
-    if (isanswer) {
-        pc.createAnswer().then(gotDescription, function (err) {
-            console.log(err);
-        });
-        function gotDescription(desc) {
-            pc.setLocalDescription(desc).then(function () {
-                console.log("desc local OK");
-                socket.emit('desc', desc);
-            }, function (err) {
+}
+function setRemote() {
+    btn4.disabled = true;
+    console.log('setRemote', tmpdesc);
+    pc.setRemoteDescription(tmpdesc).then(function () {
+        if (isanswer) {
+            pc.createAnswer().then(gotDescription, function (err) {
                 console.log(err);
             });
+            function gotDescription(desc) {
+                btn3.disabled = false;
+                tmpdesc = desc;
+            }
         }
-    }
-});
-socket.on('desc_a', function (desc) {
-    console.log('收到desc', desc);
-    pc.setRemoteDescription(desc).then(function () {
-        console.log("desc_remoteOK");
     }, function (err) {
         console.log(err);
     });
+}
+socket.on('desc', function (desc) {
+    tmpdesc = desc;
+    btn4.disabled = false;
+    setRemote();
 });
 socket.on('candidate', function (candidate) {
     pc.addIceCandidate(candidate).then(function () {
+        console.log('收到candidate');
     }, function (err) {
         console.log(err);
         console.log(candidate);
