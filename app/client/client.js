@@ -1,8 +1,9 @@
 var localVideo = document.getElementById('localVideo');
 var remoteVideo = document.getElementById('remoteVideo');
 var localStream;
-var socket = io.connect();
-// let socket = io.connect('hk.airir.com:81');
+var socket;
+socket = io.connect();
+// socket = io.connect('hk.airir.com:81');
 var mycandidate = [];
 var pc;
 var isanswer = false;
@@ -14,13 +15,18 @@ btn1.addEventListener('click', peerconnection);
 btn2.addEventListener('click', peerconnection);
 btn2.disabled = true;
 btn1.disabled = false;
+function con() {
+    btn2.disabled = true;
+    btn1.disabled = false;
+}
 socket.on('connectionOk', function () {
     console.log('connectionOk');
 });
 console.log("gothe1n");
 var iceServer = [
     {
-        "url": "stun:stun.l.google.com:19302"
+        // "url": "stun:stun.l.google.com:19302"
+        "url": "turn:hk.airir.com"
     }
 ];
 function gotStream(stream) {

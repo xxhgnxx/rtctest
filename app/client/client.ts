@@ -1,11 +1,13 @@
 let localVideo = <HTMLInputElement>document.getElementById('localVideo');
 let remoteVideo = <HTMLInputElement>document.getElementById('remoteVideo');
 let localStream;
-let socket = io.connect();
-// let socket = io.connect('hk.airir.com:81');
+let socket;
+socket = io.connect();
+// socket = io.connect('hk.airir.com:81');
 let mycandidate = [];
 let pc;
 let isanswer = false;
+
 let btn1 = <HTMLInputElement>document.getElementById('btn1');
 let btn2 = <HTMLInputElement>document.getElementById('btn2');
 let btn3 = <HTMLInputElement>document.getElementById('btn3');
@@ -17,13 +19,23 @@ btn2.addEventListener('click', peerconnection);
 btn2.disabled = true;
 btn1.disabled = false;
 
+function con() {
+
+    btn2.disabled = true;
+    btn1.disabled = false;
+}
+
+
 socket.on('connectionOk', function () {
     console.log('connectionOk');
+
+
 });
 console.log("gothe1n");
 var iceServer = [
     {
-        "url": "stun:stun.l.google.com:19302"
+        // "url": "stun:stun.l.google.com:19302"
+        "url": "turn:hk.airir.com"
     }
 ];
 function gotStream(stream) {
