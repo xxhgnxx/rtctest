@@ -1,0 +1,91 @@
+let localVideo = document.getElementById('localVideo');
+let remoteVideo = document.getElementById('remoteVideo');
+let localStream;
+let socket = io.connect();
+let mycandidate = [];
+let pc;
+let btn1 = document.getElementById('btn1');
+let btn2 = document.getElementById('btn2');
+let btn3 = document.getElementById('btn3');
+
+
+console.log("gothe1n");
+var iceServer = [
+    {
+        "url": "stun:stun.l.google.com:19302"
+    }
+];
+socket.on('connectionOk', function () {
+    console.log('connectionOk');
+});
+socket.on('candidate', function (data) {
+    console.log("收到candidate");
+    for (var key in data) {
+        pc.addIceCandidate(data[key]);
+    }
+});
+socket.on('desc', function (data) {
+    console.log("收到desc");
+
+        pc.setRemoteDescription(data);
+    
+});
+socket.on('candidate_o', function (data) {
+    console.log("收到candidate");
+    pc = new RTCPeerConnection(iceServer);
+          pc.onaddstream = gotRemoteStream;
+    function gotRemoteStream(e) {
+        (<any>remoteVideo).srcObject = e.stream;
+    }
+
+    for (var key in data) {
+        pc.addIceCandidate(data[key]);
+    }
+});
+socket.on('desc_o', function (data) {
+    console.log("收到desc");
+
+        pc.setRemoteDescription(data);
+    
+});
+socket.on('offer', function (data) {
+    console.log("建立offer");
+    pc = new RTCPeerConnection(iceServer);
+    navigator.mediaDevices
+        .getUserMedia({ audio: true, video: true })
+        .then(function (stream) {
+        (<any>localVideo).srcObject = stream;
+        localStream = stream;
+        pc.addStream(stream);
+    });
+    var sendOfferFn = function (desc) {
+        pc.setLocalDescription(desc);
+        console.log("2offer");
+        socket.emit('candidate_send', mycandidate);
+        socket.emit('desc_send', desc);
+    };
+    pc.createOffer(sendOfferFn, function (error) {
+        console.log(error);
+    });
+    pc.onicecandidate = function (evt) {
+        console.log("1offer");
+        mycandidate.push(evt.candidate);
+    };
+});
+socket.on('answer', function (data) {
+    console.log("建立answer");
+    var sendAnswerFn = function (desc) {
+        pc.setLocalDescription(desc);
+        console.log("2answer");
+        socket.emit('candidate_send_a', mycandidate);
+        socket.emit('desc_send_a', desc);
+    };
+    pc.createAnswer(sendAnswerFn, function (error) {
+        console.log(error);
+    });
+    pc.onicecandidate = function (evt) {
+        console.log("1answer");
+        mycandidate.push(evt.candidate);
+    };
+
+});

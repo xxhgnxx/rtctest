@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>RTC test</title>
+
+</head>
+
+<body>
+    hei!
+    <div id="container">
+
+
+        <video id="localVideo" autoplay  style="height: 100px;"></video>
+        <video id="remoteVideo" autoplay></video>
+
+        <div>
+            <button id="btn1">offer</button>
+            <button id="btn2">answer</button>
+            <button id="btn3">Hang Up</button>
+        </div>
+    </div>
+
+    <!--<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>-->
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="client/client.js"></script>
+
+</body>
+
+</html>
