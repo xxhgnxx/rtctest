@@ -2,7 +2,7 @@ var localVideo = document.getElementById('localVideo');
 var remoteVideo = document.getElementById('remoteVideo');
 var localStream;
 var socket;
-socket = io.connect();
+socket = io.connect('127.0.0.1:81');
 // socket = io.connect('hk.airir.com:81');
 var mycandidate = [];
 var pc;
@@ -31,11 +31,10 @@ socket.on('connectionOk', function () {
 console.log("gothe1n");
 var iceServer = {
     "iceServers": [
-        // {
-        //     // "url": "stun:stun.l.google.com:19302"
-        //     "url": "stun:hk.airir.com"
-        //     // "url": "stun:stunserver.org"
-        // },
+        {
+            // "url": "stun:stun.l.google.com:19302"
+            "url": "stun:hk.airir.com"
+        },
         {
             "url": "turn:hk.airir.com",
             "username": "123",

@@ -6,12 +6,13 @@ var privateKey = fs.readFileSync('./app/yourkey.pem', 'utf8');
 var certificate = fs.readFileSync('./app/yourcert.pem', 'utf8');
 var credentials = { key: privateKey, cert: certificate };
 var httpsServer = https.createServer(credentials, app);
-var SSLPORT = 8000;
+var SSLPORT = 81;
 httpsServer.listen(SSLPORT, function () {
     console.log('HTTPS Server is running on: https://localhost:%s', SSLPORT);
 });
 // let server = require('http').createServer(app);
 var io = require('socket.io').listen(httpsServer);
+// let io = require('socket.io').listen(88);
 // let port = process.env.PORT || 8000;
 // server.listen(port);
 app.use(express.static(__dirname + '/'));
@@ -36,11 +37,13 @@ io.on('connection', function (socket) {
             .emit('answer');
     });
     socket.on("desc", function (desc) {
+        console.log("收到desc");
         socket
             .broadcast
             .emit('desc', desc);
     });
     socket.on("candidate", function (candidate) {
+        console.log("收到candidate");
         socket
             .broadcast
             .emit('candidate', candidate);
