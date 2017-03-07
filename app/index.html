@@ -1,32 +1,47 @@
-<!doctype html>
-<html lang="zh-CN">
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
 
 <head>
-    <meta charset="UTF-8">
-    <title>RTC test</title>
+  <meta charset="UTF-8">
+  <title>Ionic Conference App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+
+  <link rel="icon" type="image/x-icon" href="assets/icon/favicon.ico">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#387ef5">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href="assets/img/appicon.png">
+
+  <script>
+    /*
+     * if ('serviceWorker' in navigator) {
+     *   navigator.serviceWorker.register('service-worker.js')
+     *     .then(() => console.log('service worker installed'))
+     *     .catch(err => console.log('Error', err));
+     * }
+     */
+
+  </script>
+
+  <link href="build/main.css" rel="stylesheet">
 
 </head>
 
 <body>
-    hei!
-    <div id="container">
 
+  <!-- Ionic's root component and where the app will load -->
+  <ion-app></ion-app>
 
-        <video id="localVideo" autoplay  style="height: 100px;"></video>
-        <video id="remoteVideo" autoplay></video>
+  <script src="cordova.js"></script>
 
-        <div>
+  <!-- The polyfills js is generated during the build process -->
+  <script src="build/polyfills.js"></script>
 
-            <button id="btn1">offer</button>
-            <button id="btn2">answer</button>
-            <button id="btn3">setLocal</button>
-            <button id="btn4">setRemote</button>
-        </div>
-    </div>
-
-    <!--<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>-->
-    <script src="/socket.io/socket.io.js"></script>
-    <script type="text/javascript" src="client/client.js"></script>
+  <!-- The bundle js is generated during the build process -->
+  <script src="build/main.js"></script>
 
 </body>
 
